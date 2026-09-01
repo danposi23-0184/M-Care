@@ -1,0 +1,6 @@
+{
+  "name": "M-Care Patient Mobile App",
+  "description": "Patient mobile application and capstone architecture for M-Care OB-GYNE Clinic & Ultrasound in Balibago, Angeles City.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    background-color: #F5F5F0;
+    color: #0A2540;
+  }
+
+  .dark body {
+    background-color: #040D1A;
+    color: #F1F5F9;
+  }
+
+  h1, h2, h3, .font-serif-title {
+    font-family: 'Lora', Georgia, serif;
+  }
+}
+
