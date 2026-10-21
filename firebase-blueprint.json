@@ -34,6 +34,27 @@
       },
       "required": ["id", "patientId", "date", "timeSlot", "status"]
     },
+    "medicalRecords": {
+      "title": "Medical Records",
+      "description": "Official ultrasound sonogram reports, patient diagnostic records, and clinical findings",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "patientId": { "type": "string" },
+        "patientCode": { "type": "string" },
+        "patientName": { "type": "string" },
+        "recordType": { "type": "string" },
+        "date": { "type": "string" },
+        "doctorName": { "type": "string" },
+        "findings": { "type": "string" },
+        "gestationalAgeWeeks": { "type": "number" },
+        "fetalHeartRateBpm": { "type": "number" },
+        "bloodPressure": { "type": "string" },
+        "weightKg": { "type": "number" },
+        "prescriptions": { "type": "string" }
+      },
+      "required": ["id", "patientId", "recordType", "date", "findings"]
+    },
     "notifications": {
       "title": "Notifications",
       "description": "In-app and push notification log for patient",

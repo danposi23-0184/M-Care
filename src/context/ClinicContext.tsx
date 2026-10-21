@@ -7,6 +7,7 @@ import {
   AppointmentType,
   UltrasoundScanType,
   VisitSummary,
+  MedicalRecord,
 } from '../types';
 import {
   INITIAL_CLINIC_SETTINGS,
@@ -14,6 +15,7 @@ import {
   INITIAL_APPOINTMENTS,
   INITIAL_NOTIFICATIONS,
   PHASE1_EXISTING_PATIENT_REGISTRY,
+  INITIAL_MEDICAL_RECORDS,
 } from '../data/mockDatabase';
 import {
   SmartReminderSettings,
@@ -40,6 +42,10 @@ import {
   getDoc,
   setDoc,
   updateDoc,
+  collection,
+  onSnapshot,
+  handleFirestoreError,
+  OperationType,
   type FirebaseUser,
   type ConfirmationResult,
 } from '../lib/firebase';
@@ -73,13 +79,16 @@ interface ClinicContextType {
   isAuthReady: boolean;
   clinicSettings: ClinicSettings;
   appointments: Appointment[];
+  medicalRecords: MedicalRecord[];
   notifications: AppNotification[];
   unreadNotifCount: number;
-  viewMode: 'mobile-app' | 'staff-portal' | 'thesis-roadmap' | 'auth-preview';
+  viewMode: 'mobile-app' | 'staff-portal' | 'thesis-roadmap' | 'auth-preview' | 'playstore-hub';
   deviceFrame: 'ios' | 'android' | 'compact';
-  activeTab: 'home' | 'appointments' | 'book' | 'clinic' | 'profile' | 'auth';
-  setActiveTab: (tab: 'home' | 'appointments' | 'book' | 'clinic' | 'profile' | 'auth') => void;
-  setViewMode: (mode: 'mobile-app' | 'staff-portal' | 'thesis-roadmap' | 'auth-preview') => void;
+  isDeviceFullscreen: boolean;
+  setIsDeviceFullscreen: (val: boolean) => void;
+  activeTab: 'home' | 'records' | 'appointments' | 'book' | 'clinic' | 'profile' | 'auth';
+  setActiveTab: (tab: 'home' | 'records' | 'appointments' | 'book' | 'clinic' | 'profile' | 'auth') => void;
+  setViewMode: (mode: 'mobile-app' | 'staff-portal' | 'thesis-roadmap' | 'auth-preview' | 'playstore-hub') => void;
   setDeviceFrame: (frame: 'ios' | 'android' | 'compact') => void;
   
   // Theme & Appearance
@@ -115,6 +124,17 @@ interface ClinicContextType {
   staffRejectAppointment: (id: string, reason: string) => void;
   staffRescheduleAppointment: (id: string, newDate: string, newTimeSlot: string) => void;
   staffCompleteAppointment: (id: string, summary: VisitSummary) => void;
+  staffCreateAppointment: (input: {
+    patientName: string;
+    patientCode: string;
+    contactNumber: string;
+    date: string;
+    timeSlot: string;
+    appointmentType: AppointmentType;
+    scanType?: UltrasoundScanType;
+    reason: string;
+  }) => Promise<{ success: boolean; message: string; appointment?: Appointment }>;
+  addMedicalRecord: (record: Omit<MedicalRecord, 'id'>) => Promise<void>;
   
   // Notifications & Smart Reminders
   markNotificationRead: (id: string) => void;
@@ -174,6 +194,18 @@ export const ClinicProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return INITIAL_APPOINTMENTS;
   });
 
+  const [medicalRecords, setMedicalRecords] = useState<MedicalRecord[]>(() => {
+    const saved = localStorage.getItem('mcare_medical_records_v2');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    return INITIAL_MEDICAL_RECORDS;
+  });
+
   const [notifications, setNotifications] = useState<AppNotification[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS);
     if (saved) {
@@ -209,8 +241,9 @@ export const ClinicProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     return DEFAULT_SMART_REMINDER_SETTINGS;
   });
 
-  const [viewMode, setViewMode] = useState<'mobile-app' | 'staff-portal' | 'thesis-roadmap' | 'auth-preview'>('mobile-app');
+  const [viewMode, setViewMode] = useState<'mobile-app' | 'staff-portal' | 'thesis-roadmap' | 'auth-preview' | 'playstore-hub'>('mobile-app');
   const [deviceFrame, setDeviceFrame] = useState<'ios' | 'android' | 'compact'>('ios');
+  const [isDeviceFullscreen, setIsDeviceFullscreen] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<'home' | 'appointments' | 'book' | 'clinic' | 'profile' | 'auth'>('home');
 
   const [theme, setThemeState] = useState<'light' | 'dark'>(() => {
@@ -304,8 +337,76 @@ export const ClinicProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, [appointments]);
 
   useEffect(() => {
+    localStorage.setItem('mcare_medical_records_v2', JSON.stringify(medicalRecords));
+  }, [medicalRecords]);
+
+  useEffect(() => {
     localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(notifications));
   }, [notifications]);
+
+  // Real-time Firestore sync for Appointments (Live sync across phone and web manager)
+  useEffect(() => {
+    try {
+      const apptsCol = collection(db, 'appointments');
+      const unsub = onSnapshot(apptsCol, (snapshot) => {
+        if (!snapshot.empty) {
+          const remoteAppts: Appointment[] = [];
+          snapshot.forEach((docSnap) => {
+            remoteAppts.push(docSnap.data() as Appointment);
+          });
+          remoteAppts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          setAppointments(remoteAppts);
+        } else {
+          // Seed initial appointments to Firestore if empty
+          INITIAL_APPOINTMENTS.forEach(async (item) => {
+            try {
+              await setDoc(doc(db, 'appointments', item.id), item);
+            } catch (e) {
+              console.warn('Seeding appt error:', e);
+            }
+          });
+        }
+      }, (err) => {
+        console.warn('Firestore appointments onSnapshot error:', err);
+      });
+
+      return () => unsub();
+    } catch (err) {
+      console.warn('Firestore onSnapshot init error:', err);
+    }
+  }, []);
+
+  // Real-time Firestore sync for Medical Records (Live sync across phone and web manager)
+  useEffect(() => {
+    try {
+      const recordsCol = collection(db, 'medicalRecords');
+      const unsub = onSnapshot(recordsCol, (snapshot) => {
+        if (!snapshot.empty) {
+          const remoteRecords: MedicalRecord[] = [];
+          snapshot.forEach((docSnap) => {
+            remoteRecords.push(docSnap.data() as MedicalRecord);
+          });
+          remoteRecords.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          setMedicalRecords(remoteRecords);
+        } else {
+          // Seed initial medical records to Firestore if empty
+          INITIAL_MEDICAL_RECORDS.forEach(async (item) => {
+            try {
+              await setDoc(doc(db, 'medicalRecords', item.id), item);
+            } catch (e) {
+              console.warn('Seeding record error:', e);
+            }
+          });
+        }
+      }, (err) => {
+        console.warn('Firestore medicalRecords onSnapshot error:', err);
+      });
+
+      return () => unsub();
+    } catch (err) {
+      console.warn('Firestore onSnapshot records init error:', err);
+    }
+  }, []);
 
   const unreadNotifCount = notifications.filter((n) => !n.isRead).length;
 
@@ -922,7 +1023,7 @@ export const ClinicProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   };
 
   // Staff simulation functions
-  const staffApproveAppointment = (id: string) => {
+  const staffApproveAppointment = async (id: string) => {
     let targetCode = '';
     let apptDate = '';
     let apptTime = '';
@@ -939,6 +1040,12 @@ export const ClinicProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       })
     );
 
+    try {
+      await updateDoc(doc(db, 'appointments', id), { status: 'Approved' });
+    } catch (e) {
+      console.warn('Firestore approve appt update error:', e);
+    }
+
     sendSimulatedPush(
       'Appointment Confirmed! 🩺',
       `Great news! Your appointment ${targetCode} for ${apptDate} at ${apptTime} has been Approved by M-Care Clinic Receptionist.`,
@@ -948,7 +1055,7 @@ export const ClinicProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     );
   };
 
-  const staffRejectAppointment = (id: string, reason: string) => {
+  const staffRejectAppointment = async (id: string, reason: string) => {
     let targetCode = '';
     setAppointments((prev) =>
       prev.map((a) => {
@@ -960,6 +1067,12 @@ export const ClinicProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       })
     );
 
+    try {
+      await updateDoc(doc(db, 'appointments', id), { status: 'Rejected', rejectionReason: reason });
+    } catch (e) {
+      console.warn('Firestore reject appt update error:', e);
+    }
+
     sendSimulatedPush(
       'Appointment Update: Rejected',
       `Appointment ${targetCode} could not be accommodated. Reason: "${reason}". Please choose another available date.`,
@@ -969,7 +1082,7 @@ export const ClinicProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     );
   };
 
-  const staffRescheduleAppointment = (id: string, newDate: string, newTimeSlot: string) => {
+  const staffRescheduleAppointment = async (id: string, newDate: string, newTimeSlot: string) => {
     let targetCode = '';
     setAppointments((prev) =>
       prev.map((a) => {
@@ -981,6 +1094,12 @@ export const ClinicProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       })
     );
 
+    try {
+      await updateDoc(doc(db, 'appointments', id), { date: newDate, timeSlot: newTimeSlot, status: 'Approved' });
+    } catch (e) {
+      console.warn('Firestore reschedule appt update error:', e);
+    }
+
     sendSimulatedPush(
       'Appointment Rescheduled',
       `Your appointment ${targetCode} has been moved to ${newDate} at ${newTimeSlot} by clinic staff.`,
@@ -990,7 +1109,7 @@ export const ClinicProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     );
   };
 
-  const staffCompleteAppointment = (id: string, summary: VisitSummary) => {
+  const staffCompleteAppointment = async (id: string, summary: VisitSummary) => {
     let targetCode = '';
     setAppointments((prev) =>
       prev.map((a) => {
@@ -1012,12 +1131,102 @@ export const ClinicProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       })
     );
 
+    try {
+      await updateDoc(doc(db, 'appointments', id), {
+        status: 'Completed',
+        visitSummary: summary,
+        'payment.status': 'Paid',
+        'payment.balance': 0,
+        'payment.paidAt': new Date().toISOString(),
+      });
+    } catch (e) {
+      console.warn('Firestore complete appt update error:', e);
+    }
+
     sendSimulatedPush(
       'Visit Summary Ready ✨',
       `Your consultation for ${targetCode} is complete. You can now view your high-level visit summary in the app.`,
       'status_update',
       id,
       targetCode
+    );
+  };
+
+  const staffCreateAppointment = async (input: {
+    patientName: string;
+    patientCode: string;
+    contactNumber: string;
+    date: string;
+    timeSlot: string;
+    appointmentType: AppointmentType;
+    scanType?: UltrasoundScanType;
+    reason: string;
+  }): Promise<{ success: boolean; message: string; appointment?: Appointment }> => {
+    const serviceFee = input.appointmentType === 'Ultrasound' ? 1400 : 600;
+    const newCode = `AP-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+    const newAppt: Appointment = {
+      id: `apt-${Date.now()}`,
+      appointmentCode: newCode,
+      patientId: `pat-${input.patientCode.toLowerCase()}`,
+      patientCode: input.patientCode,
+      patientName: input.patientName,
+      contactNumber: input.contactNumber,
+      date: input.date,
+      timeSlot: input.timeSlot,
+      appointmentType: input.appointmentType,
+      scanType: input.scanType,
+      reason: input.reason || 'Staff scheduled appointment',
+      status: 'Approved',
+      attendingDoctor: clinicSettings.doctorName + ', ' + clinicSettings.doctorCredentials,
+      payment: {
+        id: `pay-${Date.now()}`,
+        invoiceNumber: `INV-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+        amount: serviceFee,
+        balance: serviceFee,
+        status: 'Pending',
+        items: [{ description: input.scanType || input.appointmentType, price: serviceFee }],
+      },
+      createdAt: new Date().toISOString(),
+    };
+
+    setAppointments((prev) => [newAppt, ...prev]);
+
+    try {
+      await setDoc(doc(db, 'appointments', newAppt.id), newAppt);
+    } catch (e) {
+      console.warn('Firestore create appointment:', e);
+    }
+
+    sendSimulatedPush(
+      'Appointment Confirmed 🩺',
+      `Staff scheduled your visit ${newCode} on ${input.date} at ${input.timeSlot}.`,
+      'status_update',
+      newAppt.id,
+      newCode
+    );
+
+    return { success: true, message: `Appointment ${newCode} created successfully!`, appointment: newAppt };
+  };
+
+  const addMedicalRecord = async (recordInput: Omit<MedicalRecord, 'id'>) => {
+    const newId = `med-${Date.now()}`;
+    const newRecord: MedicalRecord = {
+      ...recordInput,
+      id: newId,
+    };
+
+    setMedicalRecords((prev) => [newRecord, ...prev]);
+
+    try {
+      await setDoc(doc(db, 'medicalRecords', newId), newRecord);
+    } catch (e) {
+      console.warn('Failed to save medical record to Firestore:', e);
+    }
+
+    sendSimulatedPush(
+      'New Diagnostic Record Added',
+      `Dr. Bernice D. Paule has filed a new ${newRecord.recordType} on your electronic chart.`,
+      'status_update'
     );
   };
 
@@ -1148,10 +1357,13 @@ export const ClinicProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         isAuthReady,
         clinicSettings,
         appointments,
+        medicalRecords,
         notifications,
         unreadNotifCount,
         viewMode,
         deviceFrame,
+        isDeviceFullscreen,
+        setIsDeviceFullscreen,
         activeTab,
         theme,
         toggleTheme,
@@ -1178,6 +1390,8 @@ export const ClinicProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         staffRejectAppointment,
         staffRescheduleAppointment,
         staffCompleteAppointment,
+        staffCreateAppointment,
+        addMedicalRecord,
         markNotificationRead,
         markAllNotificationsRead,
         sendSimulatedPush,

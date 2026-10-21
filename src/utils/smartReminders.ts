@@ -28,7 +28,7 @@ export function getLocalizedReminderContent(
   clinicSettings: ClinicSettings,
   language: ReminderLanguage = 'en'
 ): { title: string; body: string; prepNotes: string } {
-  const doctorName = appointment.attendingDoctor || clinicSettings.doctorName || 'Dr. Bernadice D. Paule';
+  const doctorName = appointment.attendingDoctor || clinicSettings.doctorName || 'Dr. Bernice D. Paule';
   const serviceName =
     appointment.appointmentType === 'Ultrasound'
       ? appointment.scanType || 'Ultrasound Examination'

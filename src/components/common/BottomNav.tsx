@@ -1,9 +1,9 @@
 import React from 'react';
-import { Home, Calendar, PlusCircle, MapPin, User } from 'lucide-react';
+import { Home, Calendar, PlusCircle, FileText, User } from 'lucide-react';
 import { useClinic } from '../../context/ClinicContext';
 
 interface TabItem {
-  id: 'home' | 'appointments' | 'book' | 'clinic' | 'profile';
+  id: 'home' | 'records' | 'book' | 'appointments' | 'profile';
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   badge?: number;
@@ -11,17 +11,21 @@ interface TabItem {
 }
 
 export const BottomNav: React.FC = () => {
-  const { activeTab, setActiveTab, appointments } = useClinic();
+  const { activeTab, setActiveTab, appointments, medicalRecords, patient } = useClinic();
 
   const activeCount = appointments.filter(
     (a) => a.status === 'Pending' || a.status === 'Approved'
   ).length;
 
+  const patientRecordCount = medicalRecords.filter(
+    (r) => r.patientCode === patient?.patientCode || r.patientId === patient?.id
+  ).length;
+
   const tabs: TabItem[] = [
     { id: 'home', label: 'Home', icon: Home },
-    { id: 'appointments', label: 'Visits', icon: Calendar, badge: activeCount > 0 ? activeCount : undefined },
+    { id: 'records', label: 'Records', icon: FileText, badge: patientRecordCount > 0 ? patientRecordCount : undefined },
     { id: 'book', label: 'Book Slot', icon: PlusCircle, isPrimary: true },
-    { id: 'clinic', label: 'Clinic Info', icon: MapPin },
+    { id: 'appointments', label: 'Visits', icon: Calendar, badge: activeCount > 0 ? activeCount : undefined },
     { id: 'profile', label: 'Profile', icon: User },
   ];
 

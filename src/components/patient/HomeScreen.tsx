@@ -10,6 +10,7 @@ import {
   Info,
   CalendarCheck,
   ChevronDown,
+  FileText,
 } from 'lucide-react';
 import { useClinic } from '../../context/ClinicContext';
 import { QuickActionFab } from './QuickActionFab';
@@ -26,8 +27,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onOpenAppointments,
   onOpenClinicInfo,
 }) => {
-  const { patient, appointments, clinicSettings } = useClinic();
+  const { patient, appointments, clinicSettings, setActiveTab, medicalRecords } = useClinic();
   const [showPrepTips, setShowPrepTips] = useState(false);
+
+  const patientRecords = (medicalRecords || []).filter(
+    (r) => r.patientCode === patient?.patientCode || r.patientId === patient?.id
+  );
 
   // Find next upcoming active appointment
   const upcomingAppointments = appointments
@@ -65,6 +70,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </span>
         </div>
       </div>
+
 
       {/* Next Appointment Card or Book Callout */}
       {nextAppointment ? (
@@ -128,6 +134,30 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </button>
         </div>
       )}
+
+      {/* Quick Medical Records Access */}
+      <button
+        onClick={() => setActiveTab('records')}
+        className="w-full p-3.5 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-[#0F233A] dark:to-[#162B48] border border-blue-200 dark:border-blue-900/60 rounded-2xl flex items-center justify-between text-left hover:border-blue-400 transition shadow-2xs group cursor-pointer"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-[#0057B8] text-white flex items-center justify-center shrink-0 shadow-xs">
+            <FileText className="w-5 h-5" />
+          </div>
+          <div>
+            <div className="text-xs font-black text-[#0A2540] dark:text-white flex items-center gap-1.5">
+              <span>My Ultrasound & Medical Records</span>
+              <span className="px-1.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 text-[10px] font-bold">
+                {patientRecords.length} Files
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
+              Official sonograms & prescriptions by Dr. Bernice D. Paule
+            </p>
+          </div>
+        </div>
+        <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition shrink-0" />
+      </button>
 
       {/* Quick Booking Actions */}
       <div className="grid grid-cols-2 gap-3">

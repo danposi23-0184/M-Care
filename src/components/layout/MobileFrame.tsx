@@ -68,20 +68,7 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({ children }) => {
 
           {/* Mode Switcher Buttons & Controls */}
           <div className="flex items-center gap-2 flex-wrap">
-            <div className="bg-[#06182B] p-1 rounded-xl flex items-center gap-1 border border-[#1E3A5F]">
-              <button
-                onClick={() => setViewMode('auth-preview')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
-                  viewMode === 'auth-preview'
-                    ? 'bg-[#0057B8] text-white shadow-md'
-                    : 'text-[#93C5FD] hover:text-white'
-                }`}
-                title="View Login & Registration screen"
-              >
-                <LogIn className="w-3.5 h-3.5 text-[#4EA1F3]" />
-                <span>Login / Register UI</span>
-              </button>
-
+            <div className="bg-[#06182B] p-1 rounded-xl flex items-center gap-1 border border-[#1E3A5F] flex-wrap">
               <button
                 onClick={() => setViewMode('mobile-app')}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
@@ -91,7 +78,7 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({ children }) => {
                 }`}
               >
                 <Smartphone className="w-3.5 h-3.5" />
-                <span>Patient Portal</span>
+                <span>Patient Mobile App</span>
               </button>
 
               <button
@@ -102,24 +89,49 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({ children }) => {
                     : 'text-[#93C5FD] hover:text-white'
                 }`}
               >
-                <Stethoscope className="w-3.5 h-3.5" />
-                <span>Reception & Staff Desk</span>
+                <Stethoscope className="w-3.5 h-3.5 text-pink-400" />
+                <span>Web Manager (Clinic Desk)</span>
+              </button>
+
+              <button
+                onClick={() => setViewMode('playstore-hub')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                  viewMode === 'playstore-hub'
+                    ? 'bg-[#0057B8] text-white shadow-md'
+                    : 'text-[#93C5FD] hover:text-white'
+                }`}
+              >
+                <Layers className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Play Store TWA Hub</span>
+              </button>
+
+              <button
+                onClick={() => setViewMode('auth-preview')}
+                className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
+                  viewMode === 'auth-preview'
+                    ? 'bg-[#0057B8] text-white shadow-md'
+                    : 'text-[#93C5FD] hover:text-white'
+                }`}
+                title="Patient Login & Register Screen"
+              >
+                <LogIn className="w-3 h-3 text-[#4EA1F3]" />
+                <span className="hidden sm:inline">Patient Auth</span>
               </button>
 
               <button
                 onClick={() => setViewMode('thesis-roadmap')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
+                className={`px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 cursor-pointer ${
                   viewMode === 'thesis-roadmap'
                     ? 'bg-[#0057B8] text-white shadow-md'
                     : 'text-[#93C5FD] hover:text-white'
                 }`}
               >
-                <BookOpen className="w-3.5 h-3.5" />
-                <span>Roadmap & Export</span>
+                <BookOpen className="w-3 h-3" />
+                <span className="hidden sm:inline">Thesis Specs</span>
               </button>
             </div>
 
-            {/* Device Skin Toggle (When in Mobile or Auth view) */}
+            {/* Device Skin Toggle & Fullscreen Toggle (When in Mobile or Auth view) */}
             {(viewMode === 'mobile-app' || viewMode === 'auth-preview') && (
               <div className="hidden md:flex bg-[#06182B] p-1 rounded-xl items-center gap-1 border border-[#1E3A5F] text-xs">
                 <button

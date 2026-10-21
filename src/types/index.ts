@@ -47,6 +47,30 @@ export interface VisitSummary {
   };
 }
 
+export interface MedicalRecord {
+  id: string;
+  patientId: string;
+  patientCode: string;
+  patientName: string;
+  recordType: string;
+  date: string;
+  doctorName: string;
+  findings: string;
+  gestationalAgeWeeks?: number;
+  fetalHeartRateBpm?: number;
+  bloodPressure?: string;
+  weightKg?: number;
+  fundicHeightCm?: number;
+  prescriptions?: string;
+  sonogramBadge?: string;
+  measurements?: {
+    bpdMm?: number;
+    flMm?: number;
+    acMm?: number;
+    afiCm?: number;
+  };
+}
+
 export interface Appointment {
   id: string;
   appointmentCode: string; // e.g. AP-1042
@@ -144,3 +168,36 @@ export interface RoadmapMilestone {
   teamLead: string;
   keyOutputs: string;
 }
+
+export interface InventoryItem {
+  id: string;
+  name: string;
+  category: string;
+  currentStock: number;
+  minThreshold: number;
+  unit: string;
+  isLowStock: boolean;
+  lastRestocked: string;
+}
+
+export interface ClinicPaymentRecord {
+  id: string;
+  invoiceNumber: string;
+  patientName: string;
+  patientCode: string;
+  service: string;
+  amount: number;
+  status: 'Paid' | 'Pending';
+  date: string;
+  method: 'Cash' | 'GCash' | 'Maya' | 'PhilHealth';
+}
+
+export interface StaffUser {
+  id: string;
+  name: string;
+  email: string;
+  role: 'Admin' | 'Doctor' | 'Receptionist';
+  initials: string;
+  phone?: string;
+}
+

@@ -32,7 +32,7 @@ export const PREGNANCY_WEEKLY_TIPS: PregnancyTip[] = [
     recommendedServiceType: 'Ultrasound',
     scanRecommendation: 'Transvaginal Ultrasound (TVS) confirms intrauterine pregnancy and cardiac activity.',
     warningSigns: ['Unilateral sharp pelvic pain', 'Vaginal spotting or heavy bleeding', 'Severe dizziness'],
-    reviewedBy: 'Dr. Bernadice D. Paule, MD, FPOGS, FPSUOG',
+    reviewedBy: 'Dr. Bernice D. Paule, MD, FPOGS, FPSUOG',
   },
   {
     week: 8,
@@ -49,7 +49,7 @@ export const PREGNANCY_WEEKLY_TIPS: PregnancyTip[] = [
     recommendedServiceType: 'Check-Up',
     scanRecommendation: 'Initial prenatal baseline labs (CBC, blood type, urinalysis, OGTT screening).',
     warningSigns: ['Inability to retain fluids for >24 hours (Hyperemesis Gravidarum)', 'High fever above 38.5°C'],
-    reviewedBy: 'Dr. Bernadice D. Paule, MD, FPOGS, FPSUOG',
+    reviewedBy: 'Dr. Bernice D. Paule, MD, FPOGS, FPSUOG',
   },
   {
     week: 12,
@@ -66,7 +66,7 @@ export const PREGNANCY_WEEKLY_TIPS: PregnancyTip[] = [
     recommendedServiceType: 'Ultrasound',
     scanRecommendation: 'First-trimester sonogram screening to assess nuchal fold thickness and nasal bone visibility.',
     warningSigns: ['Bright red bleeding with cramps', 'Severe abdominal pressure'],
-    reviewedBy: 'Dr. Bernadice D. Paule, MD, FPOGS, FPSUOG',
+    reviewedBy: 'Dr. Bernice D. Paule, MD, FPOGS, FPSUOG',
   },
   {
     week: 16,
@@ -83,7 +83,7 @@ export const PREGNANCY_WEEKLY_TIPS: PregnancyTip[] = [
     recommendedServiceType: 'Check-Up',
     scanRecommendation: 'Fetal doppler heart tone monitoring during clinic consultation.',
     warningSigns: ['Sudden gush of fluid', 'Unilateral leg swelling or severe calf pain'],
-    reviewedBy: 'Dr. Bernadice D. Paule, MD, FPOGS, FPSUOG',
+    reviewedBy: 'Dr. Bernice D. Paule, MD, FPOGS, FPSUOG',
   },
   {
     week: 20,
@@ -100,7 +100,7 @@ export const PREGNANCY_WEEKLY_TIPS: PregnancyTip[] = [
     recommendedServiceType: 'Ultrasound',
     scanRecommendation: 'Crucial detailed anatomic survey evaluating the brain, heart 4-chamber view, spine, kidneys, and limbs.',
     warningSigns: ['Lack of fetal movements after previously feeling regular flutters', 'Persistent headaches'],
-    reviewedBy: 'Dr. Bernadice D. Paule, MD, FPOGS, FPSUOG',
+    reviewedBy: 'Dr. Bernice D. Paule, MD, FPOGS, FPSUOG',
   },
   {
     week: 24,
@@ -117,7 +117,7 @@ export const PREGNANCY_WEEKLY_TIPS: PregnancyTip[] = [
     recommendedServiceType: 'Check-Up',
     scanRecommendation: 'Routine maternal blood pressure and urine protein dipstick checks at Balibago clinic.',
     warningSigns: ['Excessive sudden swelling in hands and face', 'Visual disturbances or light flashes'],
-    reviewedBy: 'Dr. Bernadice D. Paule, MD, FPOGS, FPSUOG',
+    reviewedBy: 'Dr. Bernice D. Paule, MD, FPOGS, FPSUOG',
   },
   {
     week: 28,
@@ -134,7 +134,7 @@ export const PREGNANCY_WEEKLY_TIPS: PregnancyTip[] = [
     recommendedServiceType: 'Ultrasound',
     scanRecommendation: 'Optimal gestational window (28–32 weeks) for clear 3D/4D facial imaging and placental localization.',
     warningSigns: ['Fewer than 10 fetal kicks in 2 hours during active observation', 'Premature regular contractions'],
-    reviewedBy: 'Dr. Bernadice D. Paule, MD, FPOGS, FPSUOG',
+    reviewedBy: 'Dr. Bernice D. Paule, MD, FPOGS, FPSUOG',
   },
   {
     week: 32,
@@ -151,7 +151,7 @@ export const PREGNANCY_WEEKLY_TIPS: PregnancyTip[] = [
     recommendedServiceType: 'Ultrasound',
     scanRecommendation: 'Evaluates fetal tone, gross movement, breathing motion, and amniotic fluid pockets.',
     warningSigns: ['Persistent epigastric pain under right ribcage', 'Decreased fetal kick counts'],
-    reviewedBy: 'Dr. Bernadice D. Paule, MD, FPOGS, FPSUOG',
+    reviewedBy: 'Dr. Bernice D. Paule, MD, FPOGS, FPSUOG',
   },
   {
     week: 36,
@@ -168,7 +168,7 @@ export const PREGNANCY_WEEKLY_TIPS: PregnancyTip[] = [
     recommendedServiceType: 'Check-Up',
     scanRecommendation: 'Presentation and estimated fetal weight (EFW) ultrasound to evaluate delivery readiness.',
     warningSigns: ['Continuous leaking or rupture of amniotic membranes', 'Regular contractions every 5 mins'],
-    reviewedBy: 'Dr. Bernadice D. Paule, MD, FPOGS, FPSUOG',
+    reviewedBy: 'Dr. Bernice D. Paule, MD, FPOGS, FPSUOG',
   },
   {
     week: 40,
@@ -185,7 +185,7 @@ export const PREGNANCY_WEEKLY_TIPS: PregnancyTip[] = [
     recommendedServiceType: 'Ultrasound',
     scanRecommendation: 'AFI and Doppler umbilical artery resistance index evaluation to verify fetal wellbeing.',
     warningSigns: ['Green or brown stained amniotic fluid (meconium)', 'Heavy vaginal bleeding', 'Loss of fetal movement'],
-    reviewedBy: 'Dr. Bernadice D. Paule, MD, FPOGS, FPSUOG',
+    reviewedBy: 'Dr. Bernice D. Paule, MD, FPOGS, FPSUOG',
   },
 ];
 

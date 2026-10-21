@@ -1,0 +1,40 @@
+{
+  "packageId": "com.mcare.patientapp",
+  "host": "ais-dev-2e5bh3cuxmot3xadpe7xko-106577507938.asia-southeast1.run.app",
+  "name": "M-Care Patient",
+  "launcherName": "M-Care",
+  "themeColor": "#0057B8",
+  "navigationColor": "#0A2540",
+  "backgroundColor": "#F4F8FD",
+  "enableNotifications": true,
+  "startUrl": "/",
+  "iconUrl": "/pwa-512x512.png",
+  "maskableIconUrl": "/pwa-maskable-512x512.png",
+  "appVersionName": "1.0.0",
+  "appVersionCode": 1,
+  "shortcuts": [
+    {
+      "name": "Book Visit",
+      "short_name": "Book",
+      "url": "/?tab=book",
+      "icon": "/pwa-192x192.png"
+    },
+    {
+      "name": "My Visits",
+      "short_name": "Visits",
+      "url": "/?tab=appointments",
+      "icon": "/pwa-192x192.png"
+    }
+  ],
+  "generatorApp": "bubblewrap-cli",
+  "webManifestUrl": "/manifest.webmanifest",
+  "fallbackType": "customtabs",
+  "features": {
+    "playBilling": {
+      "enabled": false
+    }
+  },
+  "alphaDependencies": {
+    "enabled": false
+  }
+}

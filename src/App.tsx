@@ -13,6 +13,10 @@ import { NotificationsDrawer } from './components/patient/NotificationsDrawer';
 import { AuthScreen } from './components/patient/AuthScreen';
 import { StaffSyncSimulator } from './components/staff/StaffSyncSimulator';
 import { ThesisRoadmapHub } from './components/roadmap/ThesisRoadmapHub';
+import { WebManagerPortal } from './components/manager/WebManagerPortal';
+import { PlayStoreDeploymentHub } from './components/playstore/PlayStoreDeploymentHub';
+import { OfflineIndicator } from './components/common/OfflineIndicator';
+import { MedicalRecordsScreen } from './components/patient/MedicalRecordsScreen';
 
 const MainAppContent: React.FC = () => {
   const { viewMode, setViewMode, activeTab, setActiveTab, isLoggedIn } = useClinic();
@@ -32,7 +36,16 @@ const MainAppContent: React.FC = () => {
     );
   }
 
-  // If viewing the Thesis Roadmap or Staff Web Desk
+  // If viewing the Google Play Store & TWA Packaging Hub
+  if (viewMode === 'playstore-hub') {
+    return (
+      <MobileFrame>
+        <PlayStoreDeploymentHub />
+      </MobileFrame>
+    );
+  }
+
+  // If viewing the Thesis Roadmap
   if (viewMode === 'thesis-roadmap') {
     return (
       <MobileFrame>
@@ -41,12 +54,9 @@ const MainAppContent: React.FC = () => {
     );
   }
 
+  // If viewing the Clinic Web Manager (from screenshot reference)
   if (viewMode === 'staff-portal') {
-    return (
-      <MobileFrame>
-        <StaffSyncSimulator />
-      </MobileFrame>
-    );
+    return <WebManagerPortal />;
   }
 
   // Otherwise, render the Patient Mobile application inside the device frame
@@ -58,6 +68,8 @@ const MainAppContent: React.FC = () => {
           title={
             activeTab === 'home'
               ? 'M-Care Patient'
+              : activeTab === 'records'
+              ? 'Medical Records'
               : activeTab === 'appointments'
               ? 'My Visits'
               : activeTab === 'clinic'
@@ -77,6 +89,10 @@ const MainAppContent: React.FC = () => {
               onOpenAppointments={() => setActiveTab('appointments')}
               onOpenClinicInfo={() => setActiveTab('clinic')}
             />
+          )}
+
+          {activeTab === 'records' && (
+            <MedicalRecordsScreen onOpenBooking={() => setShowBookingModal(true)} />
           )}
 
           {activeTab === 'appointments' && (
@@ -136,6 +152,9 @@ const MainAppContent: React.FC = () => {
             }}
           />
         )}
+
+        {/* Offline Indicator Banner */}
+        <OfflineIndicator />
       </div>
     </MobileFrame>
   );
